@@ -119,13 +119,12 @@
 	- finally, calls into C code at `start`
 - `start:`
 	- performs some config stuff that's only allowed in machine mode
-	- switches to supervisor mode using the instruction `mret` which is usually used to return from a call from supervisor mode to machine mode
-	- that's not what's happening here, so:
+	- `mret` is usually used to return from a call from supervisor mode to machine mode. $\rightarrow$ used here to enter supervisor mode for the first time by simulating a return 
 		- in register `mstatus`, sets previous privilege mode to supervisor
 		- in register `mepc`, sets return address to address of `kernel/main.c`
 		- in page-table register `satp`, writes `0` to disable virt addr translation in supervisor mode
 		- delegates all interrupts and exceptions to supervisor mode
-	- last task: programs clock chip to generate timer interrupts
+		- last task: programs clock chip to generate timer interrupts
 	- "returns" to (enters) supervisor mode (at `main`) by calling `mret`
 - `main:`
 	- initializes devices and subsystems

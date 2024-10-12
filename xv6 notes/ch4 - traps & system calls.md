@@ -21,18 +21,19 @@
 	- kernel writes to them to tell CPU how to handle traps
 	- kernel can read to find out about a trap that has occurred
 - important:
-	- **`stvec`** - kernel writes address of trap handler here. riscv jumps here to handle a trap
-	- **`sepc`** - riscv saves program counter here since `pc` gets overwritten (with `stvec`). **`sret`** (instruction) copies it back to `pc`. kernel can write to `sepc` to control where `sret` goes
+	- **`stvec`** - kernel writes **address of trap handler** here. riscv jumps here to handle a trap
+	- **`sepc`** - riscv saves program counter here since `pc` gets overwritten (with `stvec`)
+		- the **`sret`** (instruction) copies `sepc` back to `pc`. kernel can write to `sepc` to control where `sret` goes
 	- **`scause`** - riscv puts a number here describing reason for trap
-	- **`sscratch`** - kernel places value here that's useful for the start of a trap handler
+	- **`sscratch`** - kernel places value here that's useful for the start of a trap handler (transition from user to kernel mode)
 	- **`sstatus`** - contains SIE bit that controls whether dev interrupts are enabled. if kernel clears SIE, riscv will defer dev ints until kernel sets it. SPP bit indicates if trap came from user or supervisor, and controls where `sret` returns
 - more than one CPU can be handling a trap at a time
 - ##### how riscv architecture forces a user or kernel space trap:
 	1. if device interrupt, and SIE bit is clear, don't do any of the following
 	2. disable interrupts by clearing SIE
 	3. copy `pc` to **`sepc`**
-	4. save current mode (user or kern) in SPP bit in `sstatus`
-	5. set **`scause`** 
+	4. save current mode (user or supervisor) in SPP bit in `sstatus`
+	5. set **`scause`** (cause of trap)
 	6. set mode to supervisor
 	7. copy **`stvec`** to **`pc`**
 	8. start executing at new **`pc`**
@@ -44,10 +45,15 @@
 	$\rightarrow$ flexibility - some OSs don't require page table switch in some situations
 ## 4.2 - traps from user space
 - high-level path of trap from user space:
-	- `uservec`
+	- `uservec` (trampoline)
 	- `usertrap`
 	- on return: `usertrapret`
 	- `userret`
-- traps from user code are more challenging than from kernel
-	since `satp` points to user page table that doesn't map kernel, and stack pointer may contain invalid or malicious value
-- 
+- traps from user code are more challenging than from kernel since computer needs to be in supervisor mode $\rightarrow$ BUT riscv hardware doesn't switch page tables during trap
+	- trap handler needs to explicitly switch the `satp` register to point to kernel page table
+	- `satp`: Supervisor Address Translation and Protection (holds page table pointer)
+	- `stvec` is a register that stores trap handler entry point. in user programs, `stvec` points to `uservec` (user mode trap handler)
+	- to continue executing instructions after switch, `uservec` must be mapped at the same address in the kernel page table and every user page table
+- solution: `TRAMPOLINE` page $\rightarrow$ allows for smooth transition from user to kernel mode. has the same virtual address in kernel page table and every user page table
+- **sequence:**
+	- kill me now
