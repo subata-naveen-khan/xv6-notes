@@ -3,7 +3,7 @@
 	- exception (user or kernel does smth illegal)
 	- device interrupt (a device signals that it needs attention)
 - **trap:** a generic term for all three situations
-- taps should be **transparent;** i.e. after trap is handled, previously running code should resume, without knowing that smth happened
+- traps should be **transparent;** i.e. after trap is handled, previously running code should resume, without knowing that smth happened
 - sequence:
 	1. trap forces transfer of control into kernel
 	2. kernel saves registers and other state so execution can be resumed later
