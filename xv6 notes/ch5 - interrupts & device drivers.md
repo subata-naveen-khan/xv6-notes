@@ -1,0 +1,16 @@
+- **driver**: code in an OS that manages a device 
+	- configures device hardware
+	- tells device to perform operations
+	- handles interrupts
+	- interacts w processes waiting for I/O from device
+- kernel trap handler recognises when an interrupt is from a device, and calls its driver's trap handler (`devintr` in `kernel\trap.c`)
+- driver executes concurrently with the device it's managing $\rightarrow$ code can be tricky
+- drivers execute code in 2 contexts:
+	- **top half** (runs in process's kernel thread); called via system calls; asks to start operation; waits for it to complete, then raises interrupt
+	- **bottom half** (runs at interrupt time (interrupt handler)) figures out what operation was completed, wakes up waiting process, starts work on any waiting operation
+## 5.1 - code: console input
+- `console.c` $\rightarrow$ console driver; simple driver structure
+	- accepts characters typed by human, via UART (Universal Asynchronous Receiver-Transmitter) serial-port hardware
+	- driver accumulates a line of input at a time, processing special input chars
+	- user processes use the `read` syscall to fetch lines of input from console
+- the UART hardware appears to software as a set of **memory-mapped control registers** $\rightarrow$ there are some physical addresses connected to the UART device.
