@@ -1,0 +1,1 @@
+These notes were made in Obsidian. The image linking doesn't work on GitHub, clone and open in Obsidian to view images correctly
