@@ -73,7 +73,7 @@
 - `release` is the opposite 
 	- clears `lk->cpu` field, then releases lock (assign `0` to `lk->locked`)
 	- same `amoswap` instruction is used, through the C library call `__sync_lock_release`
-## 6.2 - code: using locks
+## 6.3 - code: using locks
 - a challenge with using locks: deciding how many locks to use, which data and invariants each should protect
 - basic principles of when locks are necessary:
 	1. any time a variable can be written by a CPU while another can read or write it, use a lock
@@ -128,7 +128,7 @@
 - **sleep locks:** used when a lock needs to be held for a long time. e.g. file kept locked while reading and writing contents on disk; disk operations take a wihle
 	- spinlock would lead to wasting CPU from constant checking
 	- also, a process can't yield CPU while retaining spinlock - other processes can't use CPU while that one is waiting for smth else (yielding while holding spinlock might lead to deadlock. also interrupts are disabled anyway). 
-- `struct spinlock` (kernel/sleeplock.h)
+- `struct sleeplock` (kernel/sleeplock.h)
 	```
 	struct sleeplock {
 		uint locked;       // Is the lock held?
